@@ -60,9 +60,15 @@ public class App
                         createCustomer(connection, parts);
                         readAllCustomers(connection);
                         break;
+                    case "delete":
+                        deleteCustomer(connection, parts);
+                        break;
                     case "exit":
                     case "quit":
                         running = false;
+                        break;
+                    default:
+                        System.out.println("Unknown command: " + parts[0]);
                         break;
                 }
             }
@@ -108,7 +114,7 @@ public class App
 
         PreparedStatement pStatement = connection.prepareStatement("INSERT INTO customer (email, name) VALUES (?, ?)");
         pStatement.setString(1, parts[1]);
-        pStatement.setString(2, parts[1]);
+        pStatement.setString(2, parts[2]);
         pStatement.executeUpdate();
     }
 
@@ -132,4 +138,24 @@ public class App
             System.out.println( id + "\t" + email + "\t" + name );
         }
     }
+
+    public static void deleteCustomer(Connection connection, String[] parts) throws SQLException
+    {
+        if (parts.length != 2) {
+            System.out.println("Invalid usage of `delete`. Correct usage is as follow:");
+            System.out.println("    delete <email>");
+            return;
+        }
+
+        PreparedStatement pStatement = connection.prepareStatement("DELETE FROM customer WHERE email = ?");
+        pStatement.setString(1, parts[1]);
+        int result = pStatement.executeUpdate();
+
+        if (result == 1) {
+            System.out.println("Deleted user with email '" + parts[1] + "'");
+        } else {
+            System.out.println("User with email '" + parts[1] + "' not found");
+        }
+    }
+
 }
