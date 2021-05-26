@@ -53,6 +53,9 @@ public class App
                     case "readall":
                         readAllCustomers(connection);
                         break;
+                    case "read":
+                        readCustomer(connection, parts);
+                        break;
                     case "create":
                         createCustomer(connection, parts);
                         readAllCustomers(connection);
@@ -98,8 +101,8 @@ public class App
     public static void createCustomer(Connection connection, String[] parts) throws SQLException
     {
         if (parts.length != 3) {
-            LOGGER.warn("Invalid usage of `create`. Correct usage is as follow:");
-            LOGGER.warn("    create <email> <name>");
+            System.out.println("Invalid usage of `create`. Correct usage is as follow:");
+            System.out.println("    create <email> <name>");
             return;
         }
 
@@ -107,5 +110,26 @@ public class App
         pStatement.setString(1, parts[1]);
         pStatement.setString(2, parts[1]);
         pStatement.executeUpdate();
+    }
+
+    public static void readCustomer(Connection connection, String[] parts) throws SQLException
+    {
+        if (parts.length != 2) {
+            System.out.println("Invalid usage of `read`. Correct usage is as follow:");
+            System.out.println("    read <email>");
+            return;
+        }
+
+        PreparedStatement pStatement = connection.prepareStatement("SELECT id, email, name FROM customer WHERE email = ?");
+        pStatement.setString(1, parts[1]);
+
+        ResultSet results = pStatement.executeQuery();
+        while (results.next()) {
+            int id = results.getInt(1);
+            String email = results.getString(2);
+            String name = results.getString(3);
+
+            System.out.println( id + "\t" + email + "\t" + name );
+        }
     }
 }
