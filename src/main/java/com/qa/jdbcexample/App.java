@@ -53,6 +53,10 @@ public class App
                     case "readall":
                         readAllCustomers(connection);
                         break;
+                    case "create":
+                        createCustomer(connection, parts);
+                        readAllCustomers(connection);
+                        break;
                     case "exit":
                     case "quit":
                         running = false;
@@ -89,5 +93,19 @@ public class App
 
             System.out.println( id + "\t" + email + "\t" + name );
         }
+    }
+
+    public static void createCustomer(Connection connection, String[] parts) throws SQLException
+    {
+        if (parts.length != 3) {
+            LOGGER.warn("Invalid usage of `create`. Correct usage is as follow:");
+            LOGGER.warn("    create <email> <name>");
+            return;
+        }
+
+        PreparedStatement pStatement = connection.prepareStatement("INSERT INTO customer (email, name) VALUES (?, ?)");
+        pStatement.setString(1, parts[1]);
+        pStatement.setString(2, parts[1]);
+        pStatement.executeUpdate();
     }
 }
