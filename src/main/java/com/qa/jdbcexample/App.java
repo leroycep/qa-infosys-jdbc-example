@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import java.util.Scanner;
+import java.util.NoSuchElementException;
 
 /**
  * Hello world!
@@ -35,23 +37,29 @@ public class App
             System.exit(1); 
         }
 
+        Scanner scanner = new Scanner(System.in);
+
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(db_url, db_username, db_password);
 
-            PreparedStatement pStatement = connection.prepareStatement("SELECT id, email, name FROM customer WHERE id = ?");
-            pStatement.setInt(1, 1);
+            boolean running = true;
+            while (running) {
+                String[] parts = scanner.nextLine().split(" ");
 
-            System.out.println( "id" + "\t" + "email     " + "\t" + "name" );
+                if (parts.length == 0) continue;
 
-            ResultSet results = pStatement.executeQuery();
-            while (results.next()) {
-                int id = results.getInt(1);
-                String email = results.getString(2);
-                String name = results.getString(3);
-
-                System.out.println( id + "\t" + email + "\t" + name );
+                switch (parts[0]) {
+                    case "readall":
+                        readAllCustomers(connection);
+                        break;
+                    case "exit":
+                    case "quit":
+                        running = false;
+                        break;
+                }
             }
+        } catch (NoSuchElementException e) {
         } catch (SQLException e) {
             LOGGER.error(e.getStackTrace());
             e.printStackTrace();
@@ -63,6 +71,23 @@ public class App
             } catch (SQLException se) {
                 se.printStackTrace();
             }
+            scanner.close();
+        }
+    }
+
+    public static void readAllCustomers(Connection connection) throws SQLException
+    {
+        PreparedStatement pStatement = connection.prepareStatement("SELECT id, email, name FROM customer");
+
+        System.out.println( "id" + "\t" + "email     " + "\t" + "name" );
+
+        ResultSet results = pStatement.executeQuery();
+        while (results.next()) {
+            int id = results.getInt(1);
+            String email = results.getString(2);
+            String name = results.getString(3);
+
+            System.out.println( id + "\t" + email + "\t" + name );
         }
     }
 }
