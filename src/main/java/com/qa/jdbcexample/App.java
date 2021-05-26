@@ -63,6 +63,9 @@ public class App
                     case "delete":
                         deleteCustomer(connection, parts);
                         break;
+                    case "update":
+                        updateCustomer(connection, parts);
+                        break;
                     case "exit":
                     case "quit":
                         running = false;
@@ -155,6 +158,26 @@ public class App
             System.out.println("Deleted user with email '" + parts[1] + "'");
         } else {
             System.out.println("User with email '" + parts[1] + "' not found");
+        }
+    }
+
+    public static void updateCustomer(Connection connection, String[] parts) throws SQLException
+    {
+        if (parts.length != 3) {
+            System.out.println("Invalid usage of `update`. Correct usage is as follow:");
+            System.out.println("    update <email> <new-name>");
+            return;
+        }
+
+        PreparedStatement pStatement = connection.prepareStatement("UPDATE customer SET name = ? WHERE email = ?");
+        pStatement.setString(1, parts[2]);
+        pStatement.setString(2, parts[1]);
+        int result = pStatement.executeUpdate();
+
+        if (result == 1) {
+            System.out.println("Set user '" + parts[1] + "' name to '" + parts[2] + "'");
+        } else {
+            System.out.println("No user found with email '" + parts[1] + "'");
         }
     }
 
